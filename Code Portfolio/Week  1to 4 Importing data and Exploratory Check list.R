@@ -1,28 +1,28 @@
 ### Importing data----
 
-###Preparing workspace ---
+#reparing workspace ---
 rm(list=ls())
 
-### Set Working directory  ----
+#Set Working directory  ----
 setwd(dir = "Directory path")
 
 ### Install Packages ----
 install.packages("package name")
 library("Package name")
 
-### Read TXT files----
+#Read TXT files----
 read.table("file name")
 
 read.delim("File name.txt", sep="$") # when there is separator charcter used in our data
 
-###Read in csv files ----
+#Read in csv files ----
 library(readr)
 read.table("File name.csv",header = FALSE,sep = ",")
 read.csv("File name.csv ",header = FALSE)
 
 read.csv2("File name.csv", header= FALSE) #reads semicolon separated files 
 
-### SKipping data from file while loading data ----
+#SKipping data from file while loading data ----
 
 read_csv("filename.csv", skip = n)          # skips first n rows in the file
 read_csv("filename.csv", comment = "#")     # skips all rows that start with '#"
@@ -30,12 +30,12 @@ read_csv("filename.csv", col_names = FALSE) # For the file does not have header
 read_csv("filename.csv", col_names = c("A", "B", "C",...))  # Adds columns names as "C", "B" "C" etc.
 read_csv("filename.csv", na = ".")          #Specified "NA" to the missing values in the dataset
 
-### Read data frpm XL file ----
+#Read data frpm XL file ----
 library(readxl)
 read_excel("filename")
 readWorksheetFromFile("file name>",sheet = 1) # Read particular workshit from file
 
-## Export Data -------
+#Export Data -------
 
 # Comma delimited file
 write_csv(df, path, na = "NA") #append = FALSE, col_names = !append options in all to append new data to existing file
@@ -59,7 +59,7 @@ write_rds(df, path, compress = c("none", "gz","bz2", "xz"), ...)
 # Tab delimited files
 write_tsv(df, path, na = "NA", append = FALSE, col_names = !append)
 
-## Vector ----
+#Vector ----
 
 c(2, 3, 5)                          # Numeric 
 c(TRUE, FALSE, TRUE, FALSE, FALSE)  # Logical Values
@@ -67,7 +67,7 @@ c("aa", "bb", "cc", "dd", "ee")     # Character values
 length(c("aa", "bb", "cc", "dd"))   #number of members in a vector 
 
 
-# matrix ----
+#Matrix ----
 A = matrix( c(2, 4, 3, 1, 5, 7), # the data elements 
   nrow=2,              # number of rows 
   ncol=3,              # number of columns 
@@ -75,7 +75,7 @@ A = matrix( c(2, 4, 3, 1, 5, 7), # the data elements
 
 A                      # print the matrix 
 
-# List ----
+#List ----
 
 n = c(1, 7, 3) 
 m = c("aa", "bb", "cc", "dd") 
@@ -117,7 +117,7 @@ parse_factor()  #create factors, the data structure that R uses to represent cat
 parse_datetime() # and parse_date(), and parse_time()  allow parse various date & time specifications
 
 
-## Parse Numbers----
+#Parse Numbers----
 parse_double("1.23")  # For normal case where '.' is used for decimal point
 parse_double("1,23", locale = locale(decimal_mark = ","))   #if',' is used for decimal point
 parse_number() # It ignores non-numeric characters before and after the number
@@ -127,7 +127,7 @@ parse_number("$123,456,789")  # Used in United Stats which ignores group separat
 parse_number("123.456.789", locale = locale(grouping_mark = "."))  # Used in many parts of Europe #> [1] 1.23e+08
 parse_number("123'456'789", locale = locale(grouping_mark = "'")) # Used in Switzerland #> [1] 1.23e+08
 
-## Parse Strings ----
+#Parse Strings ----
 charToRaw("Hadley") # ASCII encoding- The mapping from hexadecimal number to character
 
 #Output  > [1] 48 61 64 6c 65 79; Each hexadecimal number represents a byte of information: 48 is H, 61 is a, and so on.
@@ -149,8 +149,4 @@ parse_datetime("2012-08-15T0545") #Date time format
 parse_date("2010-10-01")
 #> outout [1] "2010-10-01"
 
-library(hms)
-parse_time("01:10 am")
-#output 01:10:00
-parse_time("20:10:01")
-#output 20:10:01
+

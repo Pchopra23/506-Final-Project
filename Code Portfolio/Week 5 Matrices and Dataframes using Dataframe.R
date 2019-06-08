@@ -87,31 +87,31 @@ Education <- data.frame(
   GEtotal = c(11, 15, 12, 50, 65, 30, 9, 13, 100, 90),stringsAsFactors = FALSE)
 
 
-## 2. Calculate median age------
+#2. Calculate median age------
 median(Education$age)
 
-## 3. What was the mean age of female and male ?------
+#3. What was the mean age of female and male ?------
 
 mean(Education$age[Education$Sex == "F"])
 mean(Education$age[Education$Sex == "M"])
 
-## 4. GEtotal scored by a male ?-----
+#4. GEtotal scored by a male ?-----
 
 with(Education, max(GEtotal[Sex == "M"]))
 
 
-# 7. Which SChool had the most number of GE total ?------
+#7. Which SChool had the most number of GE total ?------
 
 Education$School_name[Education$GEtotal == max(Education$GEtotal)]
 
-## 6. What are the Age of the female pirates whose School_name is Presidium?-----
+#6. What are the Age of the female pirates whose School_name is Presidium?-----
 
 Education$Age[with(Education, Sex == "F" & School_name == "Presidium")]
 
-## 7. What was the median  of GEtotal over the age of 7 for male students?-----
+#7. What was the median  of GEtotal over the age of 7 for male students?-----
 with(Education, (GEtotal[Age > 7 & Sex == "M"]))
 
-## 8. Add a new column to the dataframe Good/Bad which shows Good whose score is more than 50 and bad whose score is less than 50.------
+#8. Add a new column to the dataframe Good/Bad which shows Good whose score is more than 50 and bad whose score is less than 50.------
 
 Education["Status"] <- NA
 ifelse(Education$GEtotal<50,Education$Status <- "BAD", 
