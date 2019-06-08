@@ -6,13 +6,13 @@ This repository contain two folder Code portfolio and Final project.
 ## Code Portfolio: 
 This folder contains code for important function used in R. This can be used in future whenever we need it.
 
-#Topics:-
-Data Import
-Basics Operations
-Matrices and Dataframes
-Data Transformation
-Data Visualization
-Clustering
+Topics:-
+Data Import,
+Basics Operations,
+Matrices and Dataframes,
+Data Transformation,
+Data Visualization,
+Clustering,
 
 ## Final Project
 
