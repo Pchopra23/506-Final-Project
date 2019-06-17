@@ -1,0 +1,296 @@
+---
+title: "Final EDA Assignment"
+author: "Pooja Chopra"
+date: "12 June 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+In this EDA project, I have used the Gapminder Dataset for analysis. First We will be following the epicycle analysis in R which we have learned during this course. We will start with setting up questions.
+
+####  Setting  QUESTIONS
+
+Q1 - How per capita income in SouthAsia region has trended over the Years? Which country per capita income increases the most in south asia region?
+Q2 - What was the percent growth in world GDP per capita in 2015 as compared to 1800?
+Q3 - Does life expectancy increase with increase in income? Is there enough evidence that high income does not lead to high life expectancy for a country/region?
+Q4 - Are there income levels which have higher life expectancy?
+Q5 - At what income level does increase in life expectancy stop increasing. Is this income level same for all regions?
+
+Let us start with analysis, results and their interpretations:
+
+####  Importing Required Libraries
+
+```{r Libraries, echo=FALSE, message=FALSE, warning=FALSE}
+
+library(readr)
+library(tidyverse)
+library(mice)
+library(lsr)
+library(naniar)
+library(ggplot2)
+library(DataExplorer)
+library(outliers)
+library(dlookr)
+library(matrixStats)
+library(dplyr)
+```
+
+#### Importing raw data
+```{r Imprting data echo=FALSE, message=FALSE, warning=FALSE}}
+
+setwd("C:/Users/pooja/Desktop/HU Semester/HU Semester 2/506/Group project/506-Final-Project/Final Assignment")
+
+Gapminder_Raw <- read_csv("gapminder.csv",col_types = 'fnniif')
+
+str(Gapminder_Raw)
+
+```
+
+### Data Description
+
+```{r Data Description, echo=FALSE, message=FALSE, warning=FALSE}
+
+nrow(Gapminder_Raw)       # Number of rows: 41284
+ncol(Gapminder_Raw)      # Number of columns: 6
+head(Gapminder_Raw)     # Display Top  rows
+tail(Gapminder_Raw)     # Display Bottom rows
+names(Gapminder_Raw)   # Display variable name
+
+str(Gapminder_Raw)
+summary(Gapminder_Raw)
+
+```
+Region/Country describes the continent and country the Life expectancy is measured
+Population, Income, and Life expectance is provided for each country from years 1800 to 2015
+
+Gapminder dataset have 41284 observation with 6 variables. 
+Type of Variable Country is categorical variable with 197 Levels,Region is categorical variable with 6 Levels,Year,Life and Income are continous variable and Population are descrete variable
+
+#### Dispersion of Data
+
+```{r Dispersion of Data, echo=FALSE, message=FALSE, warning=FALSE}
+
+Range_Year <- max(Gapminder_Raw$Year)-min(Gapminder_Raw$Year)
+
+Range_life  <- max(Gapminder_Raw$life)-min(Gapminder_Raw$life)
+
+Mean_adj_deviation_year <- aad(Gapminder_Raw$Year)
+Mean_adj_deviation_life <- aad(Gapminder_Raw$life)
+Mean_adj_deviation_Population <- aad(Gapminder_Raw$population)
+
+#Number of Unique Countries
+length(unique(Gapminder_Raw$Country))
+
+```
+
+In our dataset, data has been gathered for over 215 years starting from 1800 up till 2015. It includes The population of 197 countries spread across 6 regions changed over time. The life expectacy ranges from 1 to 83%.
+
+#### Data Wrangling
+
+```{r Handling missing values}
+
+#Finding NA's in Dataset
+
+md.pattern(Gapminder_Raw)
+
+plot_missing(Gapminder_Raw)
+
+#Filling NA value in Population column
+
+
+Gapminder_Raw$population <- as.numeric(gsub(",","",Gapminder_Raw$population))
+Gapminder_Filtered <- Gapminder_Raw
+
+Gapminder_Filtered <- Gapminder_Raw %>% fill(population)
+
+
+
+# Handling NA values in Income columns 
+
+Gapminder_NAincome <- Gapminder_Filtered[is.na(Gapminder_Filtered$income),]
+summary(Gapminder_NAincome)
+
+```
+
+In our data set we have 25817(62.54 %) missing values in population and 2341(5.67%) missing values in Income. 
+In our dataset population is calculated every ten years, we have filled missing values same as calcualted at the start of the decade.
+In our dataset Missing values of income are for multipe countries and it is observed that Values were never calculated from the start so it is not possible to handle missing value of Income hence we are eliminating observations where we have NA income. 
+
+
+#### Preprocessing  
+
+
+```{r Outliers and Normalization of Data, echo=FALSE, message=FALSE, warning=FALSE }
+
+
+# Outliers
+
+outlier_Year = outlier(Gapminder_Filtered$Year,logical=TRUE)
+
+outlier_Life = outlier(Gapminder_Filtered$life,logical=TRUE)
+
+outlier_population = outlier(Gapminder_Filtered$population,logical=TRUE)
+
+find_outlier_Year = which(outlier_Year==TRUE,arr.ind=TRUE)
+
+find_outlier_life = which(outlier_Life==TRUE,arr.ind=TRUE)
+
+outlier_population = which(outlier_population==TRUE,arr.ind=TRUE)
+
+Gapminder_Final = Gapminder_Filtered[-find_outlier_Year,]
+
+
+nrow(Gapminder_Final)
+
+# Normalilty Check
+normality(Gapminder_Final)
+
+plot_normality(Gapminder_Final)
+
+```
+
+
+We can use the function outliers only on the numeric columns which are Year, Income , we find 3 Ouliers in Income which can be ignored and we deleted the outlier find with life variable.
+
+
+#### Data Exploration
+
+
+###Life Expectancy
+
+
+```{r life_expectancy}
+
+hist(Gapminder_Final$life)
+
+Median_lifeincome <- weightedMedian(Gapminder_Final$life, w = Gapminder_Final$income, na.rm = TRUE)
+
+Mean_lifeincome <- weightedMean(Gapminder_Final$life, w = Gapminder_Final$region, na.rm = TRUE)
+
+e <- ggplot(Gapminder_Final, aes(x = life, y = income)) + geom_point()+geom_smooth(method = "lm") + scale_x_continuous(labels = scales::comma) 
+e
+
+
+
+```
+
+Looking at the histogram , Life expectancy trends to increase after 20 till 35. In other plot we can conclude that life expectancy is increasing regardless of growth in income.
+
+At what income level does increase in life expectancy stop increasing. Is this income level same for all regions?
+
+## Regionwise ANalysis
+
+```{r}
+
+#Regionwise analysis
+
+
+median_Life_region<- aggregate(life ~ region, Gapminder_Final, median)
+mean_Life_region<- aggregate(life ~ region, Gapminder_Final, mean)
+
+South_Asia=filter(Gapminder_Final, region=="South Asia")
+fivenum(South_Asia$life)
+fivenum(South_Asia$population)
+fivenum(South_Asia$income , na.rm = TRUE)
+
+
+Europe_Central_Asia=filter(Gapminder_Final,region=="Europe & Central Asia")
+fivenum(Europe_Central_Asia$life)
+fivenum(Europe_Central_Asia$population)
+fivenum(Europe_Central_Asia$income)
+
+America =filter(Gapminder_Final,region=="America")
+fivenum(America$life)
+fivenum(America$population)
+fivenum(America$income, na.rm = TRUE)
+
+
+East_Asia_Pacific = filter(Gapminder_Final,region=="East Asia & Pacific")
+fivenum(East_Asia_Pacific$life)
+fivenum(East_Asia_Pacific$population)
+fivenum(East_Asia_Pacific$income , na.rm = TRUE)
+
+Sub_Saharan_Africa = filter(Gapminder_Final,region=="Sub-Saharan Africa")
+fivenum(Sub_Saharan_Africa$life)
+fivenum(Sub_Saharan_Africa$population)
+fivenum(Sub_Saharan_Africa$income ,na.rm = TRUE)
+
+Middle_East_North_Africa = filter(Gapminder_Final,region=="Middle East & North Africa")
+fivenum(Middle_East_North_Africa$life)
+fivenum(Middle_East_North_Africa$population)
+fivenum(Middle_East_North_Africa$income, na.rm = TRUE)
+
+
+## Life expectacy trending over region
+par(mfrow=c(2,3))
+plot(South_Asia$Year, South_Asia$life, main = "South_Asia")
+plot(East_Asia_Pacific$Year, East_Asia_Pacific$life, main = "East1-asia _pacific")
+plot(Europe_Central_Asia$Year, Europe_Central_Asia$life, main = "Europe_Central_Asia")
+plot(Middle_East_North_Africa$Year, Middle_East_North_Africa$life, main = "Middle_East_North_Africa")
+plot(America$Year, America$life, main = "America")
+plot(Sub_Saharan_Africa$Year, Sub_Saharan_Africa$life, main = "Sub_Saharan_Africa")
+
+
+#How per capita income in SouthAsia region has trended over the Years? Which country per capita income increases the most in south asia region?
+SA_per_capita <- subset(Gapminder_Final, Gapminder_Final$region=='South Asia')
+
+SA <- ggplot(data=SA_per_capita) +
+  geom_point(aes(x=Year, y= income,color= Country)) +
+  theme(axis.text.x=element_text(angle=90, hjust=1, vjust=.025))
+SA
+
+
+
+
+```
+Looking at the above graphs life expectancy for all region are trend to increase after 19's (1900 till 2015). If we look into Income and Region data for south asia region we observed that Per capita income is tend to increase over the Year and Among all countries Maldives per capita increases the most in south Asia region till 2014.
+
+### income Study
+
+```{r income study}
+
+World_GDP<- filter(Gapminder_Final, Year %in% c('2014','1800'))
+World_GDP_2014 <- group_by(World_GDP, Year)
+World_GDP_summarise<- summarise(World_GDP_2014, avg_growth_Percap = mean(income, na.rm = TRUE))
+
+```
+
+paste0("Percent growth (or decline) in GDP per capita in 2014 for the world was ", round(World_GDP_summarise[2,2]/World_GDP_summarise[1,2], 2),"%")
+
+
+ 
+#### Population
+
+```{r}
+
+New_data <- Gapminder_Final %>%
+filter(Year == 2014 & !is.na(income)) %>%
+select(Country, life, income, region)
+
+high_income_short_life <- New_data %>%
+arrange(desc(income)) %>%
+arrange(life) %>%
+head(20)
+
+high_income_short_life
+
+```
+
+
+## Clustering 
+
+
+
+
+
+
+
+
+
+
+
