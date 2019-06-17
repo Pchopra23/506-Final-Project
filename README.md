@@ -16,6 +16,6 @@ Clustering,
 
 ## Final Project
 
-To be completed Later
+Completed
 
-This folder will be updated as and when project progresses
+
